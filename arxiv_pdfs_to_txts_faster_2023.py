@@ -68,7 +68,7 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
 
 
 ## Function to delete the original pdfs after they are converted to txt files
-def delete_pdfs(directory_path):
+def delete_pdfs_safe(directory_path):
 
     ## Get all pdf files
     pdf_files = glob(f"{directory_path}/**/*.pdf", recursive=True)
@@ -87,13 +87,19 @@ def delete_pdfs(directory_path):
         pdf_name = pdf.split('/')[-1].split('.')[0] + '.' + pdf.split('/')[-1].split('.')[1]
         
         ## Get the txt name
-        txt_name = f"{directory_path}/{pdf_name}.txt"
+        txt_name = pdf.replace('.pdf', '.txt')
         
         ## Check if txt file exists
         if txt_name in txt_files:
             
             ## Remove the pdf
             os.remove(pdf)
+
+## Function to remove the pdfs from a given directory
+def remove_pdfs(directory_path):
+    pdf_files = glob(f"{directory_path}/**/*.pdf", recursive=True)
+    for pdf in pdf_files:
+        os.remove(pdf)
 
 #####################################################################################################################
 #####################################################################################################################
@@ -102,6 +108,11 @@ def delete_pdfs(directory_path):
 
 ## Creating a list for the year and month
 yymm_list = np.arange(start=2301, stop=2313, step=1)
+
+## Remove the months that have already been processed
+# yymm_list = np.arange(start=2306, stop=2313, step=1)
+
+
 yymm_list = [str(i) for i in yymm_list]
 # print(yymm_list)
 
@@ -125,7 +136,7 @@ for yymm in yymm_list:
     convert_directory_parallel(local_folder_path, total_cpu)
 
     ## Delete them pdfs if they have been converted to txts
-    delete_pdfs(local_folder_path)
+    delete_pdfs_safe(local_folder_path)
 
     ## Track the progress
     toc = time()

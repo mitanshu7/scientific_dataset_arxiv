@@ -1,4 +1,5 @@
 *.txt
-*.err
-*.out
+*.err*
+*.out*
 scientific_dataset_2023/
+*.7z
