@@ -1,5 +1,9 @@
+# Ignore all txt files except requirements.txt
 *.txt
+!requirements.txt
+# Ignore log files
 *.err*
 *.out*
+# Ignore all 7z files and the dataset directory
 scientific_dataset_2023/
 *.7z
