@@ -9,3 +9,4 @@ scientific_dataset_*
 *.7z
 *.pdf
 *.json
+*.parquet
