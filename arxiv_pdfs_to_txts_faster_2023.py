@@ -84,7 +84,7 @@ def delete_pdfs_safe(directory_path):
     for pdf in pdf_files:
         
         ## Get the pdf name
-        pdf_name = pdf.split('/')[-1].split('.')[0] + '.' + pdf.split('/')[-1].split('.')[1]
+        # pdf_name = pdf.split('/')[-1].split('.')[0] + '.' + pdf.split('/')[-1].split('.')[1]
         
         ## Get the txt name
         txt_name = pdf.replace('.pdf', '.txt')
