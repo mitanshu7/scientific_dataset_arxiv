@@ -1,1 +1,6 @@
 pdfminer.six
+kaggle
+fastparquet
+pandas
+numpy
+matplotlib
