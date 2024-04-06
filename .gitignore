@@ -5,5 +5,7 @@
 *.err*
 *.out*
 # Ignore all 7z files and the dataset directory
-scientific_dataset_2023/
+scientific_dataset_*
 *.7z
+*.pdf
+*.json

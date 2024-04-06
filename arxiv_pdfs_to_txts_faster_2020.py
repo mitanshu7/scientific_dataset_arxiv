@@ -107,11 +107,10 @@ def remove_pdfs(directory_path):
 ## Main code            
 
 ## Creating a list for the year and month
-yymm_list = np.arange(start=2201, stop=2213, step=1)
-
+yymm_list = np.arange(start=2001, stop=2013, step=1)
 
 ## Skipping the ones that have already been processed
-# yymm_list = np.arange(start=2202, stop=2213, step=1)
+# yymm_list = np.arange(start=2005, stop=2013, step=1)
 
 
 ## Convert the list to strings
@@ -126,7 +125,7 @@ for yymm in yymm_list:
     tic = time()
 
     ## Create a local folder path
-    local_folder_path = f'scientific_dataset_2022/{yymm}'
+    local_folder_path = f'scientific_dataset_2020/{yymm}'
     
     # ## Test whether things are working as expected
     # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=10)

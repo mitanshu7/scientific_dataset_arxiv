@@ -109,9 +109,11 @@ def remove_pdfs(directory_path):
 ## Creating a list for the year and month
 yymm_list = np.arange(start=2101, stop=2113, step=1)
 
+## Skipping the ones that have already been processed
+# yymm_list = np.arange(start=2102, stop=2113, step=1)
 
 
-
+## Convert the list to strings
 yymm_list = [str(i) for i in yymm_list]
 # print(yymm_list)
 
