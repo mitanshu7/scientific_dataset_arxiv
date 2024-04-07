@@ -119,11 +119,16 @@ def create_yymm_list(start_year, end_year):
     for year in range(start_year, end_year + 1):
         for month in range(1, 13):
             yymm = year * 100 + month
+
             ## Pad a 0 if the year is less than 10
             if len(str(yymm)) == 3:
                 yymm = '0' + str(yymm)
             
             yymm_list.append(yymm)
+
+    ## Convert the yymm list to string
+    yymm_list = [str(i) for i in yymm_list]
+
     return yymm_list
 
 #####################################################################################################################
@@ -134,10 +139,6 @@ def create_yymm_list(start_year, end_year):
 
 ## Create a yymm list from the year 2020 to 2023
 yymm_list = create_yymm_list(start_year, end_year)
-
-## Convert the yymm list to string
-yymm_list = [str(i) for i in yymm_list]
-# print(yymm_list)
 
 ## loop to download the files, convert them to text and delete the pdfs
 for yymm in yymm_list:
