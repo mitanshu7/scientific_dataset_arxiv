@@ -16,3 +16,7 @@ This project contains several Python scripts that are used to process arxiv meta
 ## Usage
 
 To use these scripts, run them in the order listed above. Make sure to replace start_year and end_year for your preffered years to get the dataset for.
+
+## Note
+
+All the scripts make extensive use of the multiprocessing module to significantly speed up the job
