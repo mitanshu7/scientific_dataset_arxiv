@@ -3,4 +3,4 @@ kaggle
 fastparquet
 pandas
 numpy
-matplotlib
+google-cloud-storage
