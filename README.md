@@ -17,7 +17,7 @@ This project contains several Python scripts that are used to process arxiv meta
 
 To use these scripts, run them in the order listed above. Make sure to replace start_year and end_year for your preffered years to get the dataset for in all four scripts.
 
-In the end, you should end up with a dataset that looks a little like [scientific_papers](https://huggingface.co/datasets/scientific_papers) However, it is updated with the latest articles!
+In the end, you should end up with a dataset that looks a little like [scientific_papers](https://huggingface.co/datasets/scientific_papers). However, it is updated with the latest articles!
 
 ## Note
 
