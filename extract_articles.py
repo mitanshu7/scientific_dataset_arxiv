@@ -1,4 +1,9 @@
 #####################################################################################################################
+## Enter the year range for which you want to download the papers and convert them to text files
+## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
+start_year = 2019
+end_year = 2020
+#####################################################################################################################
 #####################################################################################################################
 ## Step 3: Extract articles from the papers
 
@@ -50,7 +55,7 @@ def process_file(file_path):
     src_dir = os.path.dirname(file_path)
 
     # Append the source directory to the 'extracted_article' directory
-    dst_dir = os.path.join('extracted_articles', src_dir)
+    dst_dir = os.path.join(f'extracted_articles_{start_year}_to_{end_year}', src_dir)
 
     # Get the original filename
     original_filename = os.path.basename(file_path)
@@ -71,14 +76,20 @@ def process_file(file_path):
 ## Main code
 
 if __name__ == '__main__':
-    ## Get a list of all txt files from the scientific_dataset*
-    txt_files = glob('unprocessed_txts/**/*.txt', recursive=True)
+
+    ## Get a list of all txt files from the unprocessed_txts directory
+    txt_files = glob(f'unprocessed_txts_{start_year}_to_{end_year}/**/*.txt', recursive=True)
 
     # Create a multiprocessing Pool
     pool = Pool()
 
     # Use the Pool to process the files in parallel
     pool.map(process_file, txt_files)
+
+    # Close the Pool
+    pool.close()
+    pool.join()
+
 
 
 

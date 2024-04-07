@@ -55,6 +55,7 @@ else:
 print('Loading the entire dataset into a pandas dataframe')
 arxiv_metadata_all = pd.read_json(data_file, lines=True, convert_dates=True)
 
+## Create a list of yy from 2007 to 2023
 yy_list = create_yy_list(2007, 2023)
 
 

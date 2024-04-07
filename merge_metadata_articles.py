@@ -1,7 +1,12 @@
+#####################################################################################################################
+## Enter the year range for which you want to download the papers and convert them to text files
+## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
 start_year = 2019
-end_year = 2019
-download_path = f'arxiv_dataset_{start_year}_to_{end_year}'
+end_year = 2020
+#####################################################################################################################
 
+#####################################################################################################################
+## Importing the required libraries
 from datasets import load_dataset
 from glob import glob
 import pandas as pd
@@ -51,7 +56,7 @@ def process_file(file_path, metadata_df):
     ## If the metadata is found
     if not metadata.empty:
 
-        ## Get the title, abstract and article
+        ## Get the title, abstract and article in lower case
         title = metadata['title'].values[0]
         abstract = metadata['abstract'].values[0]
 
@@ -70,7 +75,9 @@ def process_file(file_path, metadata_df):
 ## Main code
 
 yy_list = create_yy_list(start_year, end_year)
-create_folder(download_path)
+
+dataset_path = f'arxiv_dataset_{start_year}_to_{end_year}'
+create_folder(dataset_path)
 
 if __name__ == '__main__':
 
@@ -87,7 +94,7 @@ if __name__ == '__main__':
 
 
         ## Get a list of all txt files from the extracted_articles
-        txt_files = glob(f'extracted_articles/unprocessed_txts/{yy}*/**/*.txt', recursive=True)
+        txt_files = glob(f'extracted_articles_{start_year}_to_{end_year}/unprocessed_txts_{start_year}_to_{end_year}/{yy}*/**/*.txt', recursive=True)
         txt_files.sort()
 
         ## Track the progress
@@ -98,6 +105,7 @@ if __name__ == '__main__':
 
         # Create a new function with metadata_df as a default argument
         process_file_with_metadata = partial(process_file, metadata_df=metadata_df)
+        
         # Use the new function with pool.map
         results = pool.map(process_file_with_metadata, txt_files)
 
@@ -111,9 +119,13 @@ if __name__ == '__main__':
         ## Remove duplicates
         dataset_df.drop_duplicates(subset=['id'], keep='last', inplace=True)
 
+        ## Turn the contents of the dataframe to lowercase
+        print('Turning the contents of the dataframe to lowercase')
+        dataset_df = dataset_df.apply(lambda x: x.str.lower())
+
         ## Save the dataset dataframe to a parquet file
         print('Saving the dataset dataframe to a parquet file')
-        dataset_file = f'{download_path}/arxiv_dataset_20{yy}.parquet'
+        dataset_file = f'{dataset_path}/arxiv_dataset_20{yy}.parquet'
         dataset_df.to_parquet(dataset_file, index=False)
 
         ## Print the shape of the dataset dataframe
