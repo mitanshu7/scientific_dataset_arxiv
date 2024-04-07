@@ -4,3 +4,5 @@ fastparquet
 pandas
 numpy
 google-cloud-storage
+datasets
+jupyterlab

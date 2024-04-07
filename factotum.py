@@ -18,9 +18,9 @@ Step 5: Create the dataset by merging the metadata and articles
 
 #####################################################################################################################
 ## Enter the year range for which you want to download the papers and convert them to text files
-## The year range is inclusive, valid for years >=2001
-start_year = 20 # The year 2020
-end_year = 23  # The year 2023
+## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
+start_year = 2019
+end_year = 2019
 #####################################################################################################################
 
 ## Importing the required libraries
@@ -28,7 +28,7 @@ end_year = 23  # The year 2023
 
 import os
 from glob import glob
-import multiprocessing
+from multiprocessing import Pool
 from arxiv_public_datasets.arxiv_public_data.fulltext import convert_directory_parallel
 from time import time
 
@@ -42,7 +42,7 @@ program_start_time = time() # Track the time taken to run the program
 start_time = time()
 
 ## Get the total number of cpus
-total_cpu = multiprocessing.cpu_count()
+total_cpu = Pool()._processes
 # print(total_cpu)
 
 #####################################################################################################################
@@ -115,6 +115,8 @@ def delete_pdfs_safe(directory_path):
 
 ## Creating a list for the year and month
 def create_yymm_list(start_year, end_year):
+    start_year = start_year % 100
+    end_year = end_year % 100
     yymm_list = []
     for year in range(start_year, end_year + 1):
         for month in range(1, 13):
@@ -130,6 +132,7 @@ def create_yymm_list(start_year, end_year):
     yymm_list = [str(i) for i in yymm_list]
 
     return yymm_list
+
 
 #####################################################################################################################
 #####################################################################################################################
@@ -151,10 +154,10 @@ for yymm in yymm_list:
     local_folder_path = f'unprocessed_txts/{yymm}'
     
     # ## Test whether things are working as expected
-    # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=10)
+    download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=10)
 
     ## Download all the pdfs published on Arxiv in the year 20yy and month mm
-    download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
+    # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
 
     ## Convert all the pdfs in the yymm directory to text
     convert_directory_parallel(local_folder_path, total_cpu)
@@ -178,8 +181,6 @@ print(f"Time taken to download the pdfs and convert them to txt files: {end_time
 ## Importing the necessary libraries
 import os
 from glob import glob
-from multiprocessing import Pool
-
 
 #####################################################################################################################
 #####################################################################################################################
@@ -210,6 +211,7 @@ def find_text_after_term(content, term):
         return None
     
 # Function to process a file
+## By default the function will extract the text after the term 'introduction'
 def process_file(file_path):
     
     ## Open the file and read the content
@@ -284,7 +286,7 @@ api = KaggleApi() # Create an API client object
 api.authenticate() # Authenticate the API client
 
 ## Defining paths
-download_path = 'kaggle'
+download_path = 'datasets'
 data_file = f'{download_path}/arxiv-metadata-oai-snapshot.json'
 
 ## Download the dataset if it doesn't exist
@@ -295,8 +297,9 @@ else:
     print(f'{data_file} already exists')
 
 ## Load the entire dataset into a pandas dataframe
+## Beware, it take about 23 GBs of RAM. In case you dont have that much ram, the code/computer will crash
 print('Loading the entire dataset into a pandas dataframe')
-arxiv_metadata_all = pd.read_json(data_file, lines=True, convert_dates=True)
+arxiv_metadata_all = pd.read_json(data_file, lines=True)
 
 ## Extract the metadata for the papers with id that starts with the elements in yymm_list
 print(f'Extracting the metadata for the papers with id that starts with {yymm_list}')
@@ -312,7 +315,7 @@ arxiv_metadata = arxiv_metadata.apply(lambda x: x.str.lower())
 
 ## Save the dataframe to a parquet file
 print('Saving the dataframe to a parquet file')
-trimmed_data_file = f'kaggle/arxiv_metadata_{start_year}_to_{end_year}.parquet'
+trimmed_data_file = f'{download_path}/arxiv_metadata_{start_year}_to_{end_year}.parquet'
 arxiv_metadata.to_parquet(trimmed_data_file, index=False)
 
 ## Print the shape of the metadata dataframe
@@ -333,7 +336,6 @@ print(f'Time taken to extract relevant metadata: {end_time - start_time:.2f} sec
 import pandas as pd
 from glob import glob
 from time import time
-from multiprocessing import Pool
 
 ## Track the time taken to merge the articles and abstracts
 start_time = time()
@@ -372,12 +374,9 @@ def process_file(file_path):
         print(f"Metadata not found for {id_without_version}")
         return None
     
-## Defining paths
-data_file = trimmed_data_file
-
-## Load the dataframe into memory
+## Load the trimmed dataframe into memory
 print('Loading the trimmed metadata dataframe into memory')
-metadata_df = pd.read_parquet(data_file)
+metadata_df = pd.read_parquet(trimmed_data_file)
 
 ## Create a dataset dataframe
 dataset_df = pd.DataFrame(columns=['id', 'title', 'abstract', 'article'])
@@ -400,7 +399,7 @@ dataset_df.drop_duplicates(subset=['id'], keep='last', inplace=True)
 
 ## Save the dataset dataframe to a parquet file
 print('Saving the dataset dataframe to a parquet file')
-dataset_file = f'kaggle/arxiv_dataset_{start_year}_to_{end_year}.parquet'
+dataset_file = f'{download_path}/arxiv_dataset_{start_year}_to_{end_year}.parquet'
 dataset_df.to_parquet(dataset_file, index=False)
 
 ## Print the shape of the dataset dataframe
