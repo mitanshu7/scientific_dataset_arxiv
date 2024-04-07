@@ -11,3 +11,5 @@ scientific_dataset_*
 *.pdf
 *.json
 *.parquet
+*.pdftotxt
+*.
