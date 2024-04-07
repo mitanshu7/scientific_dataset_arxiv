@@ -17,6 +17,10 @@ Step 5: Create the dataset by merging the metadata and articles
 # Description: This script downloads the pdfs from the Arxiv dataset, converts them to text files and deletes the pdfs.
 
 #####################################################################################################################
+## Enter the year range for which you want to download the papers and convert them to text files
+## The year range is inclusive, valid for years >=2001
+start_year = 20 # The year 2020
+end_year = 23  # The year 2023
 #####################################################################################################################
 
 ## Importing the required libraries
@@ -110,12 +114,15 @@ def delete_pdfs_safe(directory_path):
             os.remove(pdf)
 
 ## Creating a list for the year and month
-## Valid for years >= 2010 
 def create_yymm_list(start_year, end_year):
     yymm_list = []
     for year in range(start_year, end_year + 1):
         for month in range(1, 13):
             yymm = year * 100 + month
+            ## Pad a 0 if the year is less than 10
+            if len(str(yymm)) == 3:
+                yymm = '0' + str(yymm)
+            
             yymm_list.append(yymm)
     return yymm_list
 
@@ -123,8 +130,7 @@ def create_yymm_list(start_year, end_year):
 #####################################################################################################################
 
 ## Main code   
-start_year = 20
-end_year = 23  
+
 
 ## Create a yymm list from the year 2020 to 2023
 yymm_list = create_yymm_list(start_year, end_year)
