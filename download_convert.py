@@ -167,10 +167,10 @@ if __name__ == '__main__':
         local_folder_path = f'unprocessed_txts_{start_year}_to_{end_year}/{yymm}'
         
         # ## Test whether things are working as expected, download only 
-        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=2)
+        # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=2)
 
         ## Download all (max 10,000) the pdfs published on Arxiv in the year 20yy and month mm
-        # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
+        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
 
         ## Convert all the pdfs in the yymm directory to text
         convert_directory_parallel(local_folder_path, cpu_count())
