@@ -19,12 +19,36 @@ from arxiv_public_datasets.arxiv_public_data.fulltext import convert_directory_p
 
 ## Function to create a folder if it doesn't exist
 def create_folder(directory_path):
+    """
+    Create a folder at the specified directory path if it doesn't already exist.
+
+    Args:
+        directory_path (str): The path of the directory to create.
+
+    Returns:
+        None
+    """
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
 ## Function to download a folder from the bucket
 def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_folder_path, workers=cpu_count(), max_results=10000):
-    """Downloads a folder from the bucket."""
+    """
+    Downloads a folder from the bucket.
+
+    Args:
+        bucket_name (str): The name of the bucket.
+        bucket_folder_name (str): The name of the folder in the bucket.
+        local_folder_path (str): The local path where the folder will be downloaded.
+        workers (int, optional): The number of workers to use for parallel downloading. Defaults to the number of CPUs.
+        max_results (int, optional): The maximum number of results to retrieve from the bucket. Defaults to 10000.
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
 
     from google.cloud.storage import Client, transfer_manager
 
@@ -55,6 +79,15 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
 
 ## Function to delete the original pdfs after they are converted to txt files
 def delete_pdfs_safe(directory_path):
+    """
+    Deletes PDF files safely by checking if there is a corresponding TXT file.
+
+    Args:
+        directory_path (str): The path to the directory containing the PDF and TXT files.
+
+    Returns:
+        None
+    """
 
     ## Get all pdf files
     pdf_files = glob(f"{directory_path}/**/*.pdf", recursive=True)
@@ -83,6 +116,16 @@ def delete_pdfs_safe(directory_path):
 
 ## Creating a list for the year and month
 def create_yymm_list(start_year, end_year):
+    """
+    Create a list of YYMM strings representing years and months between the given start_year and end_year.
+
+    Args:
+        start_year (int): The starting year.
+        end_year (int): The ending year.
+
+    Returns:
+        list: A list of YYMM strings representing years and months between the start_year and end_year.
+    """
     start_year = start_year % 100
     end_year = end_year % 100
     yymm_list = []

@@ -12,14 +12,21 @@ import os
 from glob import glob
 from multiprocessing import Pool
 
-
-
 #####################################################################################################################
 #####################################################################################################################
 ## Functions
 ## Function to extract the article from the text file
 def find_text_after_term(content, term):
+    """
+    Extracts the text after a given term in the content.
 
+    Parameters:
+    content (str): The content to search for the term.
+    term (str): The term to search for.
+
+    Returns:
+    str: The text after the term, or None if the term is not found.
+    """
     ## Find the index of the term in the content
     index = content.find(term.lower()) 
 
@@ -38,7 +45,12 @@ def find_text_after_term(content, term):
 # Function to process a file
 ## By default the function will extract the text after the term 'introduction'
 def process_file(file_path):
-    
+    """
+    Processes a file by extracting the text after a given term and saving it to a new file.
+
+    Parameters:
+    file_path (str): The path of the file to process.
+    """
     ## Open the file and read the content
     with open(file_path, 'r', encoding='utf-8') as rf:
         content = rf.read().lower() ## Convert the content to lower case
@@ -76,7 +88,9 @@ def process_file(file_path):
 ## Main code
 
 if __name__ == '__main__':
-
+    """
+    Main code to extract articles from the papers.
+    """
     ## Get a list of all txt files from the unprocessed_txts directory
     txt_files = glob(f'unprocessed_txts_{start_year}_to_{end_year}/**/*.txt', recursive=True)
 
@@ -89,9 +103,6 @@ if __name__ == '__main__':
     # Close the Pool
     pool.close()
     pool.join()
-
-
-
 
 #####################################################################################################################
 #####################################################################################################################

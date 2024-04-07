@@ -16,12 +16,27 @@ from functools import partial
 
 ## Function to create a folder if it doesn't exist
 def create_folder(directory_path):
+    """
+    Create a folder if it doesn't exist.
+
+    Args:
+        directory_path (str): The path of the directory to be created.
+    """
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
 ## Function to create a list of yy
 def create_yy_list(start_year, end_year):
-    
+    """
+    Create a list of yy (year in two-digit format) based on the start year and end year.
+
+    Args:
+        start_year (int): The starting year.
+        end_year (int): The ending year.
+
+    Returns:
+        list: A list of yy values.
+    """
     start_year = start_year % 100
     end_year = end_year % 100
 
@@ -35,7 +50,15 @@ def create_yy_list(start_year, end_year):
 
 ## Function to extract the id from the file path
 def extract_id_from_file(file_path):
+    """
+    Extract the id from the file path.
 
+    Args:
+        file_path (str): The path of the file.
+
+    Returns:
+        str: The id extracted from the file path.
+    """
     ## Extract the original filename from the file path
     original_filename = os.path.basename(file_path)
 
@@ -46,7 +69,16 @@ def extract_id_from_file(file_path):
 
 ## Function to process a file
 def process_file(file_path, metadata_df):
+    """
+    Process a file and extract metadata.
 
+    Args:
+        file_path (str): The path of the file to be processed.
+        metadata_df (pd.DataFrame): The metadata dataframe.
+
+    Returns:
+        pd.DataFrame: The processed metadata as a dataframe.
+    """
     ## Extract the id from the file path
     id_without_version = extract_id_from_file(file_path)
 
