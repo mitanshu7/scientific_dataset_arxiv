@@ -9,6 +9,7 @@ import logging
 from multiprocessing import Pool
 from subprocess import check_call, CalledProcessError, TimeoutExpired, PIPE
 from . import fixunicode
+from pdfminer.high_level import extract_text
 
 
 # Create the log folder if it doesn't exist
@@ -34,7 +35,7 @@ log = logging.getLogger(__name__)
 TIMELIMIT = 2*60
 STAMP_SEARCH_LIMIT = 1000
 
-PDF2TXT = 'pdf2txt.py'
+PDF2TXT = 'pdfminer.high_level.extract_text'
 PDFTOTEXT = 'pdftotext'
 
 RE_REPEATS = r'(\(cid:\d+\)|lllll|\.\.\.\.\.|\*\*\*\*\*)'
@@ -93,11 +94,11 @@ def run_pdf2txt(pdffile: str, timelimit: int=TIMELIMIT, options: str=''):
     log.debug('Running {} on {}'.format(PDF2TXT, pdffile))
     tmpfile = reextension(pdffile, 'pdf2txt')
 
-    cmd = '{cmd} {options} -o "{output}" "{pdf}"'.format(
-        cmd=PDF2TXT, options=options, output=tmpfile, pdf=pdffile
-    )
-    cmd = shlex.split(cmd)
-    output = process_timeout(cmd, timeout=timelimit)
+    text = extract_text(pdffile)
+
+    with open(tmpfile, 'w', encoding='utf-8') as f:
+        f.write(text)
+    
     with open(tmpfile, encoding='utf-8') as f:
         return f.read()
 
@@ -130,28 +131,6 @@ def run_pdftotext(pdffile: str, timelimit: int = TIMELIMIT) -> str:
 
     with open(tmpfile, encoding='utf-8') as f:
         return f.read()
-
-
-def run_pdf2txt_A(pdffile: str, **kwargs) -> str:
-    """
-    Run pdf2txt with the -A option which runs 'positional analysis on images'
-    and can return better results when pdf2txt combines many words together.
-
-    Parameters
-    ----------
-    pdffile : str
-        Path to PDF file
-
-    kwargs : dict
-        Keyword arguments to :func:`run_pdf2txt`
-
-    Returns
-    -------
-    output : str
-        Full plain text output
-    """
-    return run_pdf2txt(pdffile, options='-A', **kwargs)
-
 
 # ============================================================================
 #  main function which extracts text
@@ -200,10 +179,6 @@ def fulltext(pdffile: str, timelimit: int = TIMELIMIT):
 
         return output
 
-    output = run_pdf2txt_A(pdffile, timelimit=timelimit)
-    output = fixunicode.fix_unicode(output)
-    #output = stamp.remove_stamp(output, split=STAMP_SEARCH_LIMIT)
-    wordlength = average_word_length(output)
 
     if wordlength > 45:
         raise RuntimeError(

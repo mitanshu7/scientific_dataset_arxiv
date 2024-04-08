@@ -166,7 +166,7 @@ if __name__ == '__main__':
         download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
 
         ## Convert all the pdfs in the yymm directory to text
-        convert_directory_parallel(local_folder_path, cpu_count())
+        # convert_directory_parallel(local_folder_path, cpu_count())
 
         ## Delete them pdfs if they have been converted to txts
-        delete_pdfs_safe(local_folder_path)
+        # delete_pdfs_safe(local_folder_path)

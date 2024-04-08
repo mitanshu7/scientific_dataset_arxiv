@@ -8,6 +8,8 @@
 # Ignore all 7z files and the dataset directory
 *.7z
 *.pdf
+*.pdftotxt
+*.pdf2txt
 *.json
 *.parquet
 *.pdftotxt
