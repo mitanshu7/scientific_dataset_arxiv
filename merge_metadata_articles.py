@@ -4,6 +4,7 @@ from datasets import load_dataset
 from glob import glob
 import pandas as pd
 import os
+from time import time
 from multiprocessing import Pool
 from functools import partial
 from scientific_dataset_arxiv.config import start_year, end_year
@@ -107,6 +108,9 @@ create_folder(dataset_path)
 
 if __name__ == '__main__':
 
+    ## Track time
+    tic = time()
+
     for yy in yy_list:
 
         ## Load the trimmed dataframe into memory
@@ -156,3 +160,7 @@ if __name__ == '__main__':
 
         ## Print the shape of the dataset dataframe
         print(f'Shape of dataset dataframe: {dataset_df.shape}')
+
+    ## Track the time
+    toc = time()
+    print(f'Time taken: {toc - tic:.2f} seconds')

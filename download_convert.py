@@ -1,8 +1,7 @@
-
-
 ## Importing the required libraries
 
 import os
+from time import time
 from glob import glob
 from multiprocessing import Pool, cpu_count # Pool is used to create multiple processes
 from scientific_dataset_arxiv.fulltext import convert_directory_parallel
@@ -149,6 +148,9 @@ def create_yymm_list(start_year, end_year):
 
 if __name__ == '__main__':
 
+    ## Track time
+    tic = time()
+
     ## Create a yymm list from the year 2020 to 2023
     yymm_list = create_yymm_list(start_year, end_year)
 
@@ -170,3 +172,7 @@ if __name__ == '__main__':
         
         ## Delete them pdfs if they have been converted to txts
         delete_pdfs_safe(local_folder_path)
+    
+    ## Track time
+    toc = time()
+    print(f"Time taken: {toc - tic} seconds.")

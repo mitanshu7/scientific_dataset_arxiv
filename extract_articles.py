@@ -3,6 +3,7 @@
 
 ## Importing the necessary libraries
 import os
+from time import time
 from glob import glob
 from multiprocessing import Pool
 from scientific_dataset_arxiv.config import start_year, end_year
@@ -86,6 +87,9 @@ if __name__ == '__main__':
     """
     Main code to extract articles from the papers.
     """
+    ## Start the timer
+    tic = time()
+
     ## Get a list of all txt files from the unprocessed_txts directory
     txt_files = glob(f'unprocessed_txts_{start_year}_to_{end_year}/**/*.txt', recursive=True)
 
@@ -98,6 +102,12 @@ if __name__ == '__main__':
     # Close the Pool
     pool.close()
     pool.join()
+
+    ## Stop the timer
+    toc = time()
+    print(f"Time taken: {toc - tic:.2f} seconds")
+
+    
 
 #####################################################################################################################
 #####################################################################################################################

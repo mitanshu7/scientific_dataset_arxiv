@@ -1,0 +1,21 @@
+# This file is a specification of the Python environment for the project.
+name: arxiv
+
+# Specify the channels where the packages are available.
+channels:
+  - conda-forge
+
+# Specify the packages to be installed.
+dependencies:
+  - python  
+  - google-cloud-storage 
+  - pandas
+  - numpy
+  - fastparquet
+  - datasets  # datasets from conda-forge
+  - jupyterlab
+  - pip
+  - pip:
+    - pymupdf
+
+# End of file

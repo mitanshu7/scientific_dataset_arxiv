@@ -2,6 +2,7 @@
 
 import os
 import pandas as pd
+from time import time
 from glob import glob
 from scientific_dataset_arxiv.config import start_year, end_year
 
@@ -32,6 +33,14 @@ def merge_parquet_files(directory_path, output_file_path):
     print(f"Successfully merged all the parquet files to {output_file_path}")
 
 if __name__ == '__main__':
+
+    ## Track time
+    tic = time()
+
     directory_path = f'arxiv_dataset_{start_year}_to_{end_year}'
     output_file_path = os.path.join(directory_path, 'merged_articles.parquet')
     merge_parquet_files(directory_path, output_file_path)
+
+    ## Print the time taken
+    toc = time()
+    print(f"Time taken: {toc - tic:.2f} seconds")

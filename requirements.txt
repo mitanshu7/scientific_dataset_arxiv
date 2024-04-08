@@ -10,3 +10,5 @@ numpy
 fastparquet
 ## For loading datasets from huggingface
 datasets
+## For notebook support
+jupyterlab
