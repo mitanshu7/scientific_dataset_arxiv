@@ -1,16 +1,20 @@
-## Borrowed from https://github.com/mattbierbaum/arxiv-public-datasets
-import os
-import re
-import sys
-import glob
-import shlex
-from functools import partial
-import logging
-from multiprocessing import Pool
-from subprocess import check_call, CalledProcessError, TimeoutExpired, PIPE
+#####################################################################################################################
+
+## Import pymupdf library to extract text from pdf files
+import fitz
 from . import fixunicode
 
+from multiprocessing import Pool, cpu_count
+from functools import partial
 
+import os
+import glob
+import re
+import logging
+
+#####################################################################################################################
+
+## Set up logging
 # Create the log folder if it doesn't exist
 log_folder = 'logs'  # Change this to your desired folder name
 os.makedirs(log_folder, exist_ok=True)  # Create folder if it doesn't exist
@@ -31,20 +35,42 @@ logging.basicConfig(
 
 log = logging.getLogger(__name__)
 
-TIMELIMIT = 2*60
-STAMP_SEARCH_LIMIT = 1000
+#####################################################################################################################
 
-PDF2TXT = 'pdf2txt.py'
-PDFTOTEXT = 'pdftotext'
-
-RE_REPEATS = r'(\(cid:\d+\)|lllll|\.\.\.\.\.|\*\*\*\*\*)'
-
-
+## Helper functions
+## Function to change the extension of a file
 def reextension(filename: str, extension: str) -> str:
-    """ Give a filename a new extension """
+    """ Give a filename a new extension
+
+    Args:
+        filename (str): The original filename.
+        extension (str): The new extension to be added.
+
+    Returns:
+        str: The filename with the new extension.
+
+    """
     name, _ = os.path.splitext(filename)
     return '{}.{}'.format(name, extension)
 
+## Function to extract text from a pdf file
+def extract_text_from_pdf(pdf_path):
+    """
+    Extracts text from a PDF file.
+
+    Args:
+        pdf_path (str): The path to the PDF file.
+
+    Returns:
+        str: The extracted text from the PDF.
+    """
+    log.info(f"Extracting text from {pdf_path}")
+
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    return text
 
 def average_word_length(txt):
     """
@@ -65,98 +91,9 @@ def average_word_length(txt):
     avgw = nc / (nw + 1)
     return avgw
 
+#####################################################################################################################
 
-def process_timeout(cmd, timeout):
-    return check_call(cmd, timeout=timeout, stdout=PIPE, stderr=PIPE)
-
-
-# ============================================================================
-#  functions for calling the text extraction services
-# ============================================================================
-def run_pdf2txt(pdffile: str, timelimit: int=TIMELIMIT, options: str=''):
-    """
-    Run pdf2txt to extract full text
-
-    Parameters
-    ----------
-    pdffile : str
-        Path to PDF file
-
-    timelimit : int
-        Amount of time to wait for the process to complete
-
-    Returns
-    -------
-    output : str
-        Full plain text output
-    """
-    log.debug('Running {} on {}'.format(PDF2TXT, pdffile))
-    tmpfile = reextension(pdffile, 'pdf2txt')
-
-    cmd = '{cmd} {options} -o "{output}" "{pdf}"'.format(
-        cmd=PDF2TXT, options=options, output=tmpfile, pdf=pdffile
-    )
-    cmd = shlex.split(cmd)
-    output = process_timeout(cmd, timeout=timelimit)
-    with open(tmpfile, encoding='utf-8') as f:
-        return f.read()
-
-
-def run_pdftotext(pdffile: str, timelimit: int = TIMELIMIT) -> str:
-    """
-    Run pdftotext on PDF file for extracted plain text
-
-    Parameters
-    ----------
-    pdffile : str
-        Path to PDF file
-
-    timelimit : int
-        Amount of time to wait for the process to complete
-
-    Returns
-    -------
-    output : str
-        Full plain text output
-    """
-    log.debug('Running {} on {}'.format(PDFTOTEXT, pdffile))
-    tmpfile = reextension(pdffile, 'pdftotxt')
-
-    cmd = '{cmd} "{pdf}" "{output}"'.format(
-        cmd=PDFTOTEXT, pdf=pdffile, output=tmpfile
-    )
-    cmd = shlex.split(cmd)
-    output = process_timeout(cmd, timeout=timelimit)
-
-    with open(tmpfile, encoding='utf-8') as f:
-        return f.read()
-
-
-def run_pdf2txt_A(pdffile: str, **kwargs) -> str:
-    """
-    Run pdf2txt with the -A option which runs 'positional analysis on images'
-    and can return better results when pdf2txt combines many words together.
-
-    Parameters
-    ----------
-    pdffile : str
-        Path to PDF file
-
-    kwargs : dict
-        Keyword arguments to :func:`run_pdf2txt`
-
-    Returns
-    -------
-    output : str
-        Full plain text output
-    """
-    return run_pdf2txt(pdffile, options='-A', **kwargs)
-
-
-# ============================================================================
-#  main function which extracts text
-# ============================================================================
-def fulltext(pdffile: str, timelimit: int = TIMELIMIT):
+def fulltext(pdffile: str):
     """
     Given a pdf file, extract the unicode text and run through very basic
     unicode normalization routines. Determine the best extracted text and
@@ -181,43 +118,20 @@ def fulltext(pdffile: str, timelimit: int = TIMELIMIT):
     if os.stat(pdffile).st_size == 0:  # file is empty
         raise RuntimeError('"{}" is an empty file'.format(pdffile))
 
-    try:
-        output = run_pdftotext(pdffile, timelimit=timelimit)
-        #output = run_pdf2txt(pdffile, timelimit=timelimit)
-    except (TimeoutExpired, CalledProcessError, RuntimeError, OSError) as e:
-        output = run_pdf2txt(pdffile, timelimit=timelimit)
-        #output = run_pdftotext(pdffile, timelimit=timelimit)
+    output = extract_text_from_pdf(pdffile)
 
     output = fixunicode.fix_unicode(output)
-    #output = stamp.remove_stamp(output, split=STAMP_SEARCH_LIMIT)
     wordlength = average_word_length(output)
 
     if wordlength <= 45:
-        try:
-            os.remove(reextension(pdffile, 'pdftotxt'))  # remove the tempfile
-        except OSError:
-            pass
 
         return output
 
-    output = run_pdf2txt_A(pdffile, timelimit=timelimit)
-    output = fixunicode.fix_unicode(output)
-    #output = stamp.remove_stamp(output, split=STAMP_SEARCH_LIMIT)
-    wordlength = average_word_length(output)
-
-    if wordlength > 45:
+    else:
         raise RuntimeError(
             'No accurate text could be extracted from "{}"'.format(pdffile)
         )
-
-    try:
-        os.remove(reextension(pdffile, 'pdftotxt'))  # remove the tempfile
-    except OSError:
-        pass
-
-    return output
-
-
+    
 def sorted_files(globber: str):
     """
     Give a globbing expression of files to find. They will be sorted upon
@@ -252,7 +166,7 @@ def sorted_files(globber: str):
     return [f[-1] for f in allfiles] # sorted filenames
 
 
-def convert_directory(path: str, timelimit: int = TIMELIMIT):
+def convert_directory(path: str):
     """
     Convert all pdfs in a given `path` to full plain text. For each pdf, a file
     of the same name but extension .txt will be created. If that file exists,
@@ -270,8 +184,8 @@ def convert_directory(path: str, timelimit: int = TIMELIMIT):
     """
     outlist = []
 
-    globber = os.path.join(path, '**/*.pdf')
-    pdffiles = sorted_files(globber)
+    globber = os.path.join(path, '**/*.pdf') # search expression for glob.glob
+    pdffiles = sorted_files(globber) # a list of paths 
 
     log.info('Searching "{}"...'.format(globber))
     log.info('Found: {} pdfs'.format(len(pdffiles)))
@@ -285,7 +199,7 @@ def convert_directory(path: str, timelimit: int = TIMELIMIT):
         # we don't want this function to stop half way because of one failed
         # file so just charge onto the next one
         try:
-            text = fulltext(pdffile, timelimit)
+            text = fulltext(pdffile)
             with open(txtfile, 'w', encoding='utf-8') as f:
                 f.write(text)
         except Exception as e:
@@ -296,7 +210,7 @@ def convert_directory(path: str, timelimit: int = TIMELIMIT):
         outlist.append(pdffile)
     return outlist
 
-def convert_directory_parallel(path: str, processes: int, timelimit: int = TIMELIMIT):
+def convert_directory_parallel(path: str, processes: int = cpu_count()):
     """
     Convert all pdfs in a given `path` to full plain text. For each pdf, a file
     of the same name but extension .txt will be created. If that file exists,
@@ -319,20 +233,20 @@ def convert_directory_parallel(path: str, processes: int, timelimit: int = TIMEL
     log.info('Found: {} pdfs'.format(len(pdffiles)))
 
     pool = Pool(processes=processes)
-    result = pool.map(partial(convert_safe, timelimit=timelimit), pdffiles)
+    pool.map(convert_safe, pdffiles)
     pool.close()
     pool.join()
 
 
-def convert_safe(pdffile: str, timelimit: int = TIMELIMIT):
+def convert_safe(pdffile: str):
     """ Conversion function that never fails """
     try:
-        convert(pdffile, timelimit=timelimit)
+        convert(pdffile)
     except Exception as e:
         log.error('File conversion failed for {}: {}'.format(pdffile, e))
 
 
-def convert(path: str, skipconverted=True, timelimit: int = TIMELIMIT) -> str:
+def convert(path: str) -> str:
     """
     Convert a single PDF to text.
 
@@ -341,9 +255,6 @@ def convert(path: str, skipconverted=True, timelimit: int = TIMELIMIT) -> str:
     path : str
         Location of a PDF file.
 
-    skipconverted : boolean
-        Skip conversion when there is a text file already
-
     Returns
     -------
     str
@@ -351,15 +262,18 @@ def convert(path: str, skipconverted=True, timelimit: int = TIMELIMIT) -> str:
     """
     if not os.path.exists(path):
         raise RuntimeError('No such path: %s' % path)
+    
     outpath = reextension(path, 'txt')
 
+    ## Skip conversion when there is a text file already
     if os.path.exists(outpath):
         return outpath
 
     try:
-        content = fulltext(path, timelimit)
+        content = fulltext(path)
         with open(outpath, 'w', encoding='utf-8') as f:
             f.write(content)
+
     except Exception as e:
         msg = "Conversion failed for '%s': %s"
         log.error(msg, path, e)

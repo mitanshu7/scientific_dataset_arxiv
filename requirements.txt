@@ -1,7 +1,7 @@
 ## For downloading files from google cloud storage
 google-cloud-storage
-## For pdf to text conversion where poppler-utils is not available (e.g. Windows)
-pdfminer.six
+## For pdf to text conversion
+pymupdf
 ## For processing text data
 pandas
 ## For processing numerical data

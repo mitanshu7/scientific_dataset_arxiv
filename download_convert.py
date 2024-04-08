@@ -167,6 +167,6 @@ if __name__ == '__main__':
 
         ## Convert all the pdfs in the yymm directory to text
         convert_directory_parallel(local_folder_path, cpu_count())
-
+        
         ## Delete them pdfs if they have been converted to txts
         delete_pdfs_safe(local_folder_path)
