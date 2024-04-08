@@ -5,7 +5,7 @@ This project contains several Python scripts that are used to process arxiv meta
 
 ## Scripts
 
-0. Setup the config file for intended usage stored in `scientific_dataset_arxiv` folder.
+0. `scientific_dataset_arxiv/config.py`: Setup this file for intended usage.
 
 1. `download_convert.py`: This script is used to download PDFs from Arxiv GCP bucket and convert them into text files.
 
