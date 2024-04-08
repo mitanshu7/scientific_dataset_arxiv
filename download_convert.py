@@ -6,7 +6,7 @@ import os
 from glob import glob
 from multiprocessing import Pool, cpu_count # Pool is used to create multiple processes
 from scientific_dataset_arxiv.fulltext import convert_directory_parallel
-from scientific_dataset_arxiv.config import start_year, end_year
+from scientific_dataset_arxiv.config import start_year, end_year, max_pdfs_per_month
 
 
 #####################################################################################################################
@@ -28,7 +28,7 @@ def create_folder(directory_path):
         os.makedirs(directory_path)
 
 ## Function to download a folder from the bucket
-def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_folder_path, workers=cpu_count(), max_results=10000):
+def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_folder_path, workers=cpu_count(), max_results=max_pdfs_per_month):
     """
     Downloads a folder from the bucket.
 
@@ -60,7 +60,7 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
     blob_names = [blob.name for blob in bucket.list_blobs(max_results=max_results, prefix=bucket_folder_name)]
 
     results = transfer_manager.download_many_to_path(
-        bucket, blob_names, destination_directory=local_folder_path, max_workers=workers
+        bucket, blob_names, destination_directory=local_folder_path, max_workers=workers, skip_if_exists=True
     )
 
     for name, result in zip(blob_names, results):
@@ -162,11 +162,8 @@ if __name__ == '__main__':
         ## Create a local folder path
         local_folder_path = f'unprocessed_txts_{start_year}_to_{end_year}/{yymm}'
         
-        # ## Test whether things are working as expected, download only 
-        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=2)
-
         ## Download all (max 10,000) the pdfs published on Arxiv in the year 20yy and month mm
-        # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
+        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
 
         ## Convert all the pdfs in the yymm directory to text
         convert_directory_parallel(local_folder_path, cpu_count())
