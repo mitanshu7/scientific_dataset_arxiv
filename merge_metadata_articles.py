@@ -1,11 +1,4 @@
 #####################################################################################################################
-## Enter the year range for which you want to download the papers and convert them to text files
-## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
-start_year = 2019
-end_year = 2020
-#####################################################################################################################
-
-#####################################################################################################################
 ## Importing the required libraries
 from datasets import load_dataset
 from glob import glob
@@ -13,6 +6,7 @@ import pandas as pd
 import os
 from multiprocessing import Pool
 from functools import partial
+from scientific_dataset_arxiv.config import start_year, end_year
 
 ## Function to create a folder if it doesn't exist
 def create_folder(directory_path):

@@ -1,16 +1,11 @@
 #####################################################################################################################
-## Enter the year range for which you want to download the papers and convert them to text files
-## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
-start_year = 2019
-end_year = 2020
-#####################################################################################################################
-#####################################################################################################################
 ## Step 3: Extract articles from the papers
 
 ## Importing the necessary libraries
 import os
 from glob import glob
 from multiprocessing import Pool
+from scientific_dataset_arxiv.config import start_year, end_year
 
 #####################################################################################################################
 #####################################################################################################################

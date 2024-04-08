@@ -1,15 +1,9 @@
-#####################################################################################################################
-## Enter the year range for which you want to download the papers and convert them to text files
-## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
-start_year = 2019
-end_year = 2020
-#####################################################################################################################
-
 ## This script merges all the parquet files in a directory into a single parquet file
 
 import os
 import pandas as pd
 from glob import glob
+from scientific_dataset_arxiv.config import start_year, end_year
 
 def create_folder(directory_path):
     """

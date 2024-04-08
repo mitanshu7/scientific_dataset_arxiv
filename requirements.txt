@@ -1,8 +1,12 @@
-pdfminer.six
-kaggle
-fastparquet
-pandas
-numpy
+## For downloading files from google cloud storage
 google-cloud-storage
+## For pdf to text conversion where poppler-utils is not available (e.g. Windows)
+pdfminer.six
+## For processing text data
+pandas
+## For processing numerical data
+numpy
+## For saving and loading models
+fastparquet
+## For loading datasets from huggingface
 datasets
-jupyterlab

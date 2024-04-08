@@ -1,16 +1,12 @@
-#####################################################################################################################
-## Enter the year range for which you want to download the papers and convert them to text files
-## The year range is inclusive, valid for yymm >=0704. Arxiv metadata starts from 2007-04
-start_year = 2019
-end_year = 2020
-#####################################################################################################################
+
 
 ## Importing the required libraries
 
 import os
 from glob import glob
 from multiprocessing import Pool, cpu_count # Pool is used to create multiple processes
-from arxiv_public_datasets.arxiv_public_data.fulltext import convert_directory_parallel
+from scientific_dataset_arxiv.fulltext import convert_directory_parallel
+from scientific_dataset_arxiv.config import start_year, end_year
 
 
 #####################################################################################################################
@@ -167,10 +163,10 @@ if __name__ == '__main__':
         local_folder_path = f'unprocessed_txts_{start_year}_to_{end_year}/{yymm}'
         
         # ## Test whether things are working as expected, download only 
-        # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=2)
+        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path, max_results=2)
 
         ## Download all (max 10,000) the pdfs published on Arxiv in the year 20yy and month mm
-        download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
+        # download_folder_transfer_manager(bucket_name='arxiv-dataset', bucket_folder_name=f'arxiv/arxiv/pdf/{yymm}', local_folder_path=local_folder_path)
 
         ## Convert all the pdfs in the yymm directory to text
         convert_directory_parallel(local_folder_path, cpu_count())
