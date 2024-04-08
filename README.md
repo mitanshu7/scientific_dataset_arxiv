@@ -24,4 +24,4 @@ In the end, you should end up with a dataset that looks a little like [scientifi
 ## Note
 
 All the scripts make extensive use of the multiprocessing module to significantly speed up the job.
-You can check out a sample of the end result in the test_merged_parquet.ipynb notebook.
+You can check out a sample of the end result in the `test_merged_parquet.ipynb` notebook.
