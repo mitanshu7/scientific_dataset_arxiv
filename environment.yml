@@ -14,6 +14,7 @@ dependencies:  # List of packages that will be installed in the environment.
   - fastparquet  # Library to read and write Parquet files.
   - datasets  # Library for easily accessing and manipulating datasets.
   - jupyterlab  # Web-based interactive development environment for Jupyter notebooks.
+  - pebble # Multiprocessing with Timeout functionality
   - pip  # Package installer for Python.
   - pip:  # Packages to be installed via pip.
     - pymupdf  # Python bindings for the PDF processing library MuPDF.
