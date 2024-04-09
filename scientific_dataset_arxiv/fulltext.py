@@ -5,12 +5,18 @@ import fitz
 from . import fixunicode
 
 from multiprocessing import Pool, cpu_count
+from pebble import ProcessPool, ProcessExpired
 from functools import partial
+from concurrent.futures import TimeoutError
 
 import os
 import glob
 import re
 import logging
+
+#####################################################################################################################
+
+TIMEOUT = 2*60  # Timeout in seconds
 
 #####################################################################################################################
 
@@ -70,6 +76,8 @@ def extract_text_from_pdf(pdf_path):
     text = ""
     for page in doc:
         text += page.get_text()
+    doc.close()
+    log.debug(f"Extracted text from {pdf_path}")
     return text
 
 def average_word_length(txt):
@@ -125,6 +133,7 @@ def fulltext(pdffile: str):
 
     if wordlength <= 45:
 
+        log.debug('Fixed unicode and extracted text from "{}"'.format(pdffile))
         return output
 
     else:
@@ -193,7 +202,9 @@ def convert_directory(path: str):
     for pdffile in pdffiles:
         txtfile = reextension(pdffile, 'txt')
 
+        ## Skip conversion when there is a text file already
         if os.path.exists(txtfile):
+            log.info('Skipping "{}"'.format(pdffile))
             continue
 
         # we don't want this function to stop half way because of one failed
@@ -232,12 +243,25 @@ def convert_directory_parallel(path: str, processes: int = cpu_count()):
     log.info('Searching "{}"...'.format(globber))
     log.info('Found: {} pdfs'.format(len(pdffiles)))
 
-    pool = Pool(processes=processes)
-    pool.map(convert_safe, pdffiles)
-    pool.close()
-    pool.join()
+    with ProcessPool(max_workers=processes) as pool:
+        future = pool.map(convert_safe, pdffiles, timeout=TIMEOUT) # timeout in seconds
+        iterator = future.result()
 
-
+        while True:
+            try:
+                result = next(iterator)
+                if result:
+                    log.info('Converted "{}"'.format(result))
+            except StopIteration:
+                break
+            except TimeoutError as error:
+                log.debug("function took longer than %d seconds" % error.args[1])
+            except ProcessExpired as error:
+                log.debug("%s. Exit code: %d" % (error, error.exitcode))
+            except Exception as error:
+                log.debug("function raised %s" % error)
+                log.debug(error.traceback)  # Python's traceback of remote process
+                
 def convert_safe(pdffile: str):
     """ Conversion function that never fails """
     try:
@@ -267,12 +291,18 @@ def convert(path: str) -> str:
 
     ## Skip conversion when there is a text file already
     if os.path.exists(outpath):
+        log.info('Skipping "{}"'.format(path))
         return outpath
 
     try:
         content = fulltext(path)
+
+        log.debug('Writing text to "{}"'.format(outpath))
+
         with open(outpath, 'w', encoding='utf-8') as f:
             f.write(content)
+            
+        log.debug('Wrote text to "{}"'.format(outpath))
 
     except Exception as e:
         msg = "Conversion failed for '%s': %s"
