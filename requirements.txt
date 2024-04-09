@@ -21,3 +21,6 @@ datasets
 
 # For notebook support.
 jupyterlab
+
+# For multiprocessing with timeout
+pebble
