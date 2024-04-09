@@ -1,14 +1,23 @@
-## For downloading files from google cloud storage
+# This file lists the Python packages that are required for the project.
+# Each line specifies a package that can be installed with pip.
+
+# For downloading files from Google Cloud Storage.
 google-cloud-storage
-## For pdf to text conversion
+
+# For PDF to text conversion.
 pymupdf
-## For processing text data
+
+# For processing text data.
 pandas
-## For processing numerical data
+
+# For processing numerical data.
 numpy
-## For saving and loading models
+
+# For saving and loading models.
 fastparquet
-## For loading datasets from huggingface
+
+# For loading datasets from Hugging Face.
 datasets
-## For notebook support
+
+# For notebook support.
 jupyterlab

@@ -1,21 +1,21 @@
 # This file is a specification of the Python environment for the project.
-name: arxiv
+name: arxiv  # The name of the conda environment.
 
 # Specify the channels where the packages are available.
 channels:
-  - conda-forge
+  - conda-forge  # conda-forge is a community-led conda channel of installable packages.
 
 # Specify the packages to be installed.
-dependencies:
-  - python  
-  - google-cloud-storage 
-  - pandas
-  - numpy
-  - fastparquet
-  - datasets  # datasets from conda-forge
-  - jupyterlab
-  - pip
-  - pip:
-    - pymupdf
+dependencies:  # List of packages that will be installed in the environment.
+  - python  # The Python programming language.
+  - google-cloud-storage  # Client library for Google Cloud Storage.
+  - pandas  # Data analysis and manipulation library.
+  - numpy  # Library for numerical computations.
+  - fastparquet  # Library to read and write Parquet files.
+  - datasets  # Library for easily accessing and manipulating datasets.
+  - jupyterlab  # Web-based interactive development environment for Jupyter notebooks.
+  - pip  # Package installer for Python.
+  - pip:  # Packages to be installed via pip.
+    - pymupdf  # Python bindings for the PDF processing library MuPDF.
 
 # End of file
