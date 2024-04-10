@@ -83,18 +83,22 @@ def process_file(file_path, metadata_df):
 
     ## If the metadata is found
     if not metadata.empty:
+        ## Add a try except block to handle the UnicodeDecodeError or a general error
+        try:
+            ## Get the plain text from the file
+            with open(file_path, 'r', encoding='utf-8') as rf:
+                plain_txt = rf.read()
 
-        ## Get the plain text from the file
-        with open(file_path, 'r', encoding='utf-8') as rf:
-            plain_txt = rf.read()
-
-        ## Add the article to the metadata only if it's not empty
-        if plain_txt.strip():
-            new_row = metadata.copy()
-            new_row['fulltext'] = plain_txt
-            return new_row
-        else:
-            print(f"Empty text for {id_without_version}")
+            ## Add the article to the metadata only if it's not empty
+            if plain_txt.strip():
+                new_row = metadata.copy()
+                new_row['fulltext'] = plain_txt
+                return new_row
+            else:
+                print(f"Empty text for {id_without_version}")
+                return None
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
             return None
     else:
         print(f"Metadata not found for {id_without_version}")
