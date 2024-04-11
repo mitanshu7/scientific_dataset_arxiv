@@ -119,6 +119,12 @@ if __name__ == '__main__':
 
     for yy in yy_list:
 
+        ## skip year if the dataset already exists
+        dataset_file = f'{dataset_path}/arxiv_raw_dataset_20{yy}.parquet'
+        if os.path.exists(dataset_file):
+            print(f"Dataset for 20{yy} already exists. Skipping.")
+            continue
+
         ## Load the trimmed dataframe into memory
         print('Loading the trimmed metadata dataframe into memory')
 
