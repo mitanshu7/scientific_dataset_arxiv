@@ -106,9 +106,14 @@ def process_file(file_path, metadata_df):
     ## Extract the id from the file path
     id_without_version = extract_id_from_file(file_path)
 
-    ## Open the file and read the content
-    with open(file_path, 'r', encoding='utf-8') as rf:
-        content = rf.read().lower() ## Convert the content to lower case
+    ## Add a try except block to handle the UnicodeDecodeError or a general error
+    try:
+        ## Open the file and read the content
+        with open(file_path, 'r', encoding='utf-8') as rf:
+            content = rf.read().lower() ## Convert the content to lower case
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+        return None
     
     ## Find the text after the term 'introduction'
     article = find_text_after_term(content, search_term)
