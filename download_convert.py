@@ -5,7 +5,7 @@ from time import time
 from glob import glob
 from multiprocessing import Pool, cpu_count # Pool is used to create multiple processes
 from scientific_dataset_arxiv.fulltext import convert_directory_parallel, reextension
-from scientific_dataset_arxiv.config import start_year, end_year, max_pdfs_per_month
+from scientific_dataset_arxiv.config import start_year, end_year, max_pdfs_per_month, skip_n
 
 
 #####################################################################################################################
@@ -26,7 +26,7 @@ def create_folder(directory_path):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_folder_path, workers=cpu_count(), max_results=max_pdfs_per_month):
+def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_folder_path, workers=cpu_count(), max_results=max_pdfs_per_month, skip_first_n=skip_n):
     """
     Downloads a folder from the bucket, skipping PDFs with corresponding TXT files.
 
@@ -36,6 +36,7 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
         local_folder_path (str): The local path where the folder will be downloaded.
         workers (int, optional): The number of workers to use for parallel downloading. Defaults to the number of CPUs.
         max_results (int, optional): The maximum number of results to retrieve from the bucket. Defaults to 10000.
+        skip_first_n (int, optional): The number of results to skip. Defaults to 0.
 
     Returns:
         None
@@ -66,7 +67,13 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
 
     # Filter blobs to download (skip PDFs with corresponding TXT)
     blobs_to_download = []
+    skip_count = 0
     for blob in bucket.list_blobs(prefix=bucket_folder_name, max_results=max_results):
+
+        # Skip the first n blobs
+        if skip_count < skip_first_n:
+            skip_count += 1
+            continue
 
         # Get blob name
         blob_name = blob.name
@@ -86,7 +93,7 @@ def download_folder_transfer_manager(bucket_name, bucket_folder_name, local_fold
     blob_names = [blob.name for blob in blobs_to_download]
 
     if not blob_names:
-        print(f"No new PDFs to download in {bucket_folder_name}, as all have corresponding TXT files.")
+        print(f"No new PDFs to download in {bucket_folder_name}, as all have corresponding TXT files or the total pdfs are less than {skip_first_n}.")
         return
 
     results = transfer_manager.download_many_to_path(
