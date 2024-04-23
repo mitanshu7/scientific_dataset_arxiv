@@ -187,8 +187,12 @@ if __name__ == '__main__':
         pool.join()
 
         ## Concatenate the results into a single dataframe
-        dataset_df = pd.concat([res for res in results if res is not None], ignore_index=True)
-
+        try:
+            dataset_df = pd.concat([res for res in results if res is not None], ignore_index=True)
+        except Exception as e:
+            print(f"Error concatenating results: {e}")
+            continue
+        
         ## Remove duplicates
         dataset_df.drop_duplicates(subset=['id'], keep='last', inplace=True)
 
