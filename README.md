@@ -28,7 +28,7 @@ In the end, you should end up with a dataset that looks a little like [scientifi
 ## Note
 
 You can find preprocessed data [here](https://huggingface.co/datasets/bluuebunny/arxiv_dataset_by_year). 
-This was calulated for upto max 10,000 pdf downloads per month for the years 2007 to 2023. 
+This has all the papers from the year 2007 to 2023.  
 However, many files would be discarded either due to loss in conversion to text file or missing search_term.
 Check out the `data` folder in the Hugging Face repo to find yearwise parquet files.
  
